@@ -1927,6 +1927,9 @@ C2V_VMENTRY_NULL(jobject, readFieldValue, (JNIEnv* env, jobject, jobject object,
   } else if (JVMCIENV->isa_HotSpotResolvedObjectTypeImpl(base)) {
     Klass* klass = JVMCIENV->asKlass(base);
     obj = Handle(THREAD, klass->java_mirror());
+      if (displacement + heapOopSize > arrayOopDesc::base_offset_in_bytes(T_OBJECT) + arrayOop(obj())->length() * heapOopSize) {
+        JVMCI_THROW_MSG_NULL(IllegalArgumentException, "reading after last array element");
+      }
   } else {
     JVMCI_THROW_MSG_NULL(IllegalArgumentException,
                          err_msg("Unexpected type: %s", JVMCIENV->klass_name(base)));
