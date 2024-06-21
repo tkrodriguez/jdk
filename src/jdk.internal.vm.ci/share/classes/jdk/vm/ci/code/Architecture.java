@@ -82,6 +82,10 @@ public abstract class Architecture {
                     int nativeCallDisplacementOffset,
                     int returnAddressSize) {
         this.name = name;
+        // registers is expected to mention all registers in order of their encoding.
+        for (int i = 0; i < registers.size(); ++i) {
+            assert registers.get(i).number == i : registers.get(i) + ": " + registers.get(i).number + "!=" + i;
+        }
         this.registers = registers;
         this.wordKind = wordKind;
         this.byteOrder = byteOrder;
