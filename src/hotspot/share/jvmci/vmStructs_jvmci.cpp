@@ -881,14 +881,18 @@
   declare_function(JVMCIRuntime::log_printf)                              \
   declare_function(JVMCIRuntime::vm_error)                                \
   declare_function(JVMCIRuntime::load_and_clear_exception)                \
-  G1GC_ONLY(declare_function(JVMCIRuntime::write_barrier_pre))            \
-  G1GC_ONLY(declare_function(JVMCIRuntime::write_barrier_post))           \
   declare_function(JVMCIRuntime::validate_object)                         \
                                                                           \
   declare_function(JVMCIRuntime::test_deoptimize_call_int)
 
 
 #if INCLUDE_G1GC
+
+#define VM_ADDRESSES_JVMCI_G1GC(declare_address, declare_preprocessor_address, declare_function) \
+  declare_function(JVMCIRuntime::write_barrier_pre) \
+  declare_function(JVMCIRuntime::write_barrier_post) \
+  declare_function(JVMCIRuntime::g1_array_write_barrier_pre) \
+  declare_function(JVMCIRuntime::g1_array_write_barrier_post)
 
 #define VM_STRUCTS_JVMCI_G1GC(nonstatic_field, static_field) \
   static_field(G1HeapRegion, LogOfHRGrainBytes, uint)
@@ -1088,6 +1092,12 @@ VMAddressEntry JVMCIVMStructs::localHotSpotVMAddresses[] = {
                   GENERATE_PREPROCESSOR_VM_ADDRESS_ENTRY,
                   GENERATE_VM_FUNCTION_ENTRY,
                   GENERATE_VM_FUNCTION_WITH_VALUE_ENTRY)
+
+#if INCLUDE_G1GC
+  VM_ADDRESSES_JVMCI_G1GC(GENERATE_VM_ADDRESS_ENTRY,
+                          GENERATE_PREPROCESSOR_VM_ADDRESS_ENTRY,
+                          GENERATE_VM_FUNCTION_ENTRY)
+#endif
 
   GENERATE_VM_ADDRESS_LAST_ENTRY()
 };

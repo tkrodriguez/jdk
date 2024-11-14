@@ -594,6 +594,22 @@ void JVMCIRuntime::write_barrier_post(JavaThread* thread, volatile CardValue* ca
   G1BarrierSetRuntime::write_ref_field_post_entry(card_addr, thread);
 }
 
+void JVMCIRuntime::g1_array_write_barrier_pre(void* pointer, size_t length) {
+  if (UseCompressedOops) {
+    narrowOop* dst = reinterpret_cast<narrowOop*>(pointer);
+    G1BarrierSetRuntime::write_ref_array_pre_narrow_oop_entry(dst, length);
+  } else {
+    oop* dst = reinterpret_cast<oop*>(pointer);
+    G1BarrierSetRuntime::write_ref_array_pre_oop_entry(dst, length);
+  }
+}
+
+void JVMCIRuntime::g1_array_write_barrier_post(void* pointer, size_t length) {
+  HeapWord* dst = reinterpret_cast<HeapWord*>(pointer);
+  G1BarrierSetRuntime::write_ref_array_post_entry(dst, length);
+}
+
+
 #endif // INCLUDE_G1GC
 
 JRT_LEAF(jboolean, JVMCIRuntime::validate_object(JavaThread* thread, oopDesc* parent, oopDesc* child))
